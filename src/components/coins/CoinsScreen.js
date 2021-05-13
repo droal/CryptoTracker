@@ -1,12 +1,20 @@
 import React, { Component } from 'react'
-import { View, Text, Pressable, StyleSheet } from 'react-native'
+import { View, ActivityIndicator, FlatList, StyleSheet } from 'react-native'
 import Http from '../../libs/http'
+import CoinItem from './CoinItem'
 
 class CoinsScreen extends Component{
 
+    state = {
+        coins: [],
+        loading: false
+    }
+
     componentDidMount = async() => {
-        const coins = await Http.instance.get("https://api.coinlore.net/api/tickers/")
-        console.log("Get coins : ", coins)
+        this.setState({ loading: true })
+
+        const res = await Http.instance.get("https://api.coinlore.net/api/tickers/")
+        this.setState({ coins: res.data, loading: false})
     }
 
     handlePress = () => {
@@ -15,12 +23,28 @@ class CoinsScreen extends Component{
     }
 
     render(){
+
+        const { coins, loading } = this.state
+
         return(
             <View style={styles.container}>
-                <Text style={styles.titleText}>qwerty</Text>
-                <Pressable style={styles.btn} onPress={this.handlePress}> 
-                    <Text style={styles.btnText}>Ir a detalle</Text>
-                </Pressable>
+
+                { loading ? 
+                    <ActivityIndicator
+                    style={styles.loader}
+                        color="#fff"
+                        size="large"
+                    />
+                    : null
+                }
+
+
+                <FlatList
+                    data={coins}
+                    renderItem={({ item }) =>
+                        <CoinItem item={item}/>
+                    }
+                />
             </View>
         )
     }
@@ -29,7 +53,6 @@ class CoinsScreen extends Component{
 const styles = StyleSheet.create({
     container:{
         flex:1,
-        backgroundColor: "red"
     },
     titleText:{
         color:"#fff",
@@ -45,6 +68,9 @@ const styles = StyleSheet.create({
         color:"#fff",
         textAlign: "center",
          
+    },
+    loader:{
+        marginTop: 60
     }
 })
 
