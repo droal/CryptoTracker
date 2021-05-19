@@ -38,6 +38,7 @@ const styles = StyleSheet.create({
         padding: 16,
         borderColor: Colors.zircon,
         borderBottomWidth: 1,
+        paddignLeft: Platform.OS == 'ios' ? 0 : 16,
         marginLeft: Platform.OS == 'ios' ? 16 : 0
     },
     row:{
