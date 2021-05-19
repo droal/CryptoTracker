@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
-import { View, Image, Text, SectionList, FlatList, StyleSheet } from 'react-native'
+import { View, Image, Text, Pressable, SectionList, FlatList, StyleSheet } from 'react-native'
 import Colors from '../../res/colors'
 import Http from '../../libs/http'
+import Storage from '../../libs/storage'
 import CoinMarketItem from './CoinMarketItem'
 
 
@@ -9,7 +10,27 @@ class CoinDetailScreen extends Component{
 
     state = {
         coin:{},
-        markets:[]
+        markets:[],
+        isFavorite: false
+    }
+
+    toogleFavorite = () => {
+        if(this.state.isFavorite){
+            this.removeFavorite()
+        }else{
+            this.addFavorite()
+        }
+    }
+
+    addFavorite = () => {
+        const coin = JSON.stringify(this.state.coin)
+        const key = `favorite-${this.state.coin.id}`
+
+        const stored = Storage.instance.store(key, coin)
+
+        if(stored){
+            this.setState({ isFavorite: true })
+        }
     }
 
     getSymbolIcon = ( name ) => {
@@ -51,7 +72,6 @@ class CoinDetailScreen extends Component{
         this.setState({ markets })
     }
 
-
     componentDidMount(){
         const { coin } = this.props.route.params
 
@@ -65,13 +85,24 @@ class CoinDetailScreen extends Component{
 
     render(){
 
-        const { coin, markets } = this.state
+        const { coin, markets, isFavorite } = this.state
 
         return(
             <View style={styles.container}>
                 <View style={styles.subHeader}>
-                    <Image style={styles.iconImg} source={{ uri: this.getSymbolIcon(coin.name) }}/>
-                    <Text style={styles.titleText}>{ coin.name }</Text>
+                    <View style={styles.row}>
+                        <Image style={styles.iconImg} source={{ uri: this.getSymbolIcon(coin.name) }}/>
+                        <Text style={styles.titleText}>{ coin.name }</Text>
+                    </View>                    
+
+                    <Pressable 
+                        onPress={this.toogleFavorite}
+                        style={[
+                            styles.btnFavorite,
+                            isFavorite ? styles.btnFavoriteRemove : styles.btnFavoriteAdd
+                        ]}>
+                        <Text style={styles.btnFavoriteText}>{ isFavorite ? "Remove favorite" : "Add favorite" }</Text>
+                    </Pressable>
                 </View>
 
                 <SectionList 
@@ -109,13 +140,17 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: Colors.charade
     },
+    row:{
+        flexDirection: "row"
+    },
     subHeader:{
         backgroundColor: "rgba(0, 0, 0, 0.1)",
         padding: 16,
-        flexDirection: "row"
+        flexDirection: "row",
+        justifyContent:"space-between"
     },
     titleText:{
-        color: "#fff",
+        color: Colors.white,
         fontSize: 16,
         fontWeight: "bold",
         marginLeft: 10
@@ -139,21 +174,34 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     itemText:{
-        color: "#fff",
+        color: Colors.white,
         fontSize: 16,
     },
     sectionText:{
-        color: "#fff",
+        color: Colors.white,
         fontSize: 14,
         fontWeight: "bold",
     },
     marketTitle:{
-        color: "#fff",
+        color: Colors.white,
         fontSize: 16,
         marginBottom: 16,
         fontWeight: "bold",
         marginLeft: 16, 
         marginTop: 20
+    },
+    btnFavoriteText:{
+        color: Colors.white
+    },
+    btnFavorite:{
+        padding: 8,
+        borderRadius: 8
+    },
+    btnFavoriteAdd:{
+        backgroundColor: Colors.picton
+    },
+    btnFavoriteRemove:{
+        backgroundColor: Colors.carmine
     }
 })
 
