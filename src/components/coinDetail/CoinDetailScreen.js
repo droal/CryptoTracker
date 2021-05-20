@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { View, Image, Text, Pressable, SectionList, FlatList, StyleSheet } from 'react-native'
+import { View, Image, Text, Pressable, SectionList, FlatList, StyleSheet, Alert } from 'react-native'
 import Colors from '../../res/colors'
 import Http from '../../libs/http'
 import Storage from '../../libs/storage'
@@ -22,16 +22,55 @@ class CoinDetailScreen extends Component{
         }
     }
 
-    addFavorite = () => {
+    addFavorite = async() => {
         const coin = JSON.stringify(this.state.coin)
         const key = `favorite-${this.state.coin.id}`
 
-        const stored = Storage.instance.store(key, coin)
+        const stored = await Storage.instance.store(key, coin)
 
         if(stored){
             this.setState({ isFavorite: true })
         }
     }
+
+    removeFavorite = async() => {
+
+        Alert.alert("Remove favorite", "Are you sure?", [
+            {
+                text: "Cancel",
+                onPress: () => {},
+                style: "cancel"
+            },
+            {
+                text: "Remove",
+                onPress: async () => {
+                    const key = `favorite-${this.state.coin.id}`
+                    const removed = await Storage.instance.remove(key)            
+                    if(removed){
+                        this.setState({ isFavorite: false })
+                    }
+                },
+                style: "destructive"
+            }
+        ])
+        
+    }
+
+    getFavorite = async() => {
+        try{
+            const key = `favorite-${this.state.coin.id}`
+
+            const favState = await Storage.instance.get(key)
+
+            if(favState != null){
+                this.setState({ isFavorite: true })
+            }
+        }catch(err){
+            console.log("get favorite err: ", err)
+        }
+
+    }
+
 
     getSymbolIcon = ( name ) => {
 
@@ -79,7 +118,7 @@ class CoinDetailScreen extends Component{
 
         this.getMarkets(coin.id)
 
-        this.setState({ coin })
+        this.setState({ coin }, () => {this.getFavorite()})
     }
 
 
