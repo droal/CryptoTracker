@@ -14,14 +14,22 @@ class CoinsScreen extends Component{
     }
 
     componentDidMount = () => {
-        this.getCoins()
+        //this.getCoins() 
+        this.props.navigation.addListener("focus", this.getCoins)       
     }
+
+    componentWillUnmount = ()=> {
+        this.props.navigation.removeListener("focus", this.getCoins) 
+    }
+
+
 
     getCoins = async () => {
         this.setState({ loading: true })
 
         const res = await Http.instance.get("https://api.coinlore.net/api/tickers/")
         this.setState({ coins: res.data, allCoins: res.data, loading: false})
+        console.log("CoinsScreen", this.state)
     }
 
 

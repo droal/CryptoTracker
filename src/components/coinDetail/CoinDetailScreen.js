@@ -77,8 +77,6 @@ class CoinDetailScreen extends Component{
         if(name){
             const symbol = name.toLowerCase()
 
-            console.log("symbol:", symbol)
-
             return `https://c1.coinlore.com/img/25x25/${symbol}.png`
         }
         
@@ -119,6 +117,8 @@ class CoinDetailScreen extends Component{
         this.getMarkets(coin.id)
 
         this.setState({ coin }, () => {this.getFavorite()})
+
+        console.log("CoinDetailScreen", this.state)
     }
 
 
